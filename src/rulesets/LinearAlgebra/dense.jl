@@ -107,15 +107,16 @@ end
 ##### `logdet`
 #####
 
-function frule((_, Δx), ::typeof(logdet), x::Union{Number, StridedMatrix{<:Number}})
+function frule((_, Δx), ::typeof(logdet), x::Union{Number, AbstractMatrix{<:Number}})
     Ω = logdet(x)
     return Ω, tr(x \ Δx)
 end
 
-function rrule(::typeof(logdet), x::Union{Number, StridedMatrix{<:Number}})
+function rrule(::typeof(logdet), x::Union{Number, AbstractMatrix{<:Number}})
     Ω = logdet(x)
+    project_x = ProjectTo(x)
     function logdet_pullback(ΔΩ)
-        ∂x = x isa Number ? ΔΩ / x' : ΔΩ * inv(x)'
+        ∂x = project_x(ΔΩ / x')
         return (NoTangent(), ∂x)
     end
     return Ω, logdet_pullback
