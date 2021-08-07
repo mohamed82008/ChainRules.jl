@@ -104,6 +104,16 @@
                 test_rrule(f, B)
             end
         end
+        @testset "$f(::SparseMatrixCSC{$T})" for T in (Float64, ComplexF64)
+            B = sparse(generate_well_conditioned_matrix(T, 4))
+            if f === logdet && float(T) <: Float32
+                test_frule(f, B; atol=1e-5, rtol=1e-5)
+                test_rrule(f, B; atol=1e-5, rtol=1e-5)
+            else
+                test_frule(f, B)
+                test_rrule(f, B)
+            end
+        end
     end
     @testset "logabsdet(::Matrix{$T})" for T in (Float64, ComplexF64)
         B = randn(T, 4, 4)
